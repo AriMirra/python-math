@@ -1,3 +1,7 @@
+import math
+import matplotlib.pyplot as plt
+
+
 def bisection(f, a, b, error_level=0.001):
     previous_p = a
     error = error_level + 1
@@ -46,7 +50,44 @@ def newton_pol(xs, ys):
             pol_str += "*(x-%s)" % xs[j]
         if i != n - 1:
             pol_str += " + "
-    return lambda x: eval(pol_str, {'x': xs})
+    return lambda x: eval(pol_str, {'x': x})
 
 
-print(newton_pol([1.5, 1, 0.5, 2], [1, 0.5, 1.2, 3]))
+def amplify(xs, ys, n):
+    between_points = math.ceil((n - len(xs)) / (len(xs) - 1))
+    new_xs = []
+    new_ys = []
+    for i in range(len(xs) - 1):
+        delta = (xs[i + 1] - xs[i]) / (between_points + 1)
+        temp_xs = [xs[i], xs[i + 1]]
+        temp_ys = [ys[i], ys[i + 1]]
+        temp_pol = newton_pol(temp_xs, temp_ys)
+        for j in range(between_points + 1):
+            new_x = xs[i] + j * delta
+            new_y = temp_pol(new_x)
+            new_xs.append(new_x)
+            new_ys.append(new_y)
+    new_xs.append(xs[len(xs) - 1])
+    new_ys.append(ys[len(ys) - 1])
+    return new_xs, new_ys
+
+
+def simple_amplify(xs, n):
+    between_points = math.ceil((n - len(xs)) / (len(xs) - 1))
+    result = []
+    for i in range(len(xs) - 1):
+        delta = (xs[i + 1] - xs[i]) / (between_points + 1)
+        for j in range(between_points + 1):
+            result.append(xs[i] + j * delta)
+    result.append(xs[len(xs) - 1])
+    return result
+
+
+xss = [1, 2, 3, 4, 5]
+yss = [1, 4, 9, 16, 25]
+new_xss, new_yss = amplify(xss, yss, 1000)
+
+plt.plot(xss, yss)
+plt.show()
+plt.plot(new_xss, new_yss)
+plt.show()
